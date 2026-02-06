@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRIOLLITAS - Pedidos</title>
+    <style>
+        :root {
+            /* Colores adaptados a Criollitas */
+            --amarillo: #FFD700;
+            --negro: #000000;
+            --gris-card: #1e1e1e;
+            --verde-precio: #2ecc71;
+            --rojo-vibras: #CC0000; /* Para el sello de Vibras Positivas */
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--negro);
+            color: white;
+            margin: 0;
+            padding-bottom: 120px;
+        }
+
+        #bloqueo-pago {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 30px;
+        }
+
+        header {
+            background-color: var(--negro);
+            text-align: center;
+            padding: 20px;
+            border-bottom: 4px solid var(--amarillo);
+        }
+
+        .logo-img { max-width: 130px; margin-bottom: 8px; border-radius: 50%; border: 2px solid var(--amarillo); }
+        .titulo-app { font-size: 26px; font-weight: bold; color: var(--amarillo); margin: 0; text-transform: uppercase; }
+        .firma { font-size: 10px; color: #888; margin-top: 5px; font-style: italic; letter-spacing: 1px; }
+        .info-oficial { font-size: 13px; margin-top: 10px; line-height: 1.5; color: white; }
+
+        .container { padding: 15px; }
+        .categoria-titulo { 
+            color: var(--amarillo); 
+            border-bottom: 1px solid var(--amarillo); 
+            padding: 10px 0; 
+            margin-top: 25px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .plato-card {
+            background: var(--gris-card);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 12px;
+            border-left: 6px solid var(--amarillo);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .plato-info .nombre { color: var(--amarillo); font-weight: bold; font-size: 1.1em; }
+        .plato-info .descripcion { color: #aaa; font-size: 0.85em; margin-top: 3px; display: block; max-width: 200px; }
+        .plato-info .precio { color: var(--verde-precio); font-weight: bold; font-size: 1.15em; margin-top: 5px; }
+
+        .controles { display: flex; align-items: center; gap: 15px; }
+        .btn-accion {
+            background: var(--amarillo); color: black; border: none;
+            width: 38px; height: 38px; border-radius: 50%;
+            font-size: 22px; font-weight: bold; cursor: pointer;
+        }
+
+        select, input, textarea {
+            width: 100%; background: #111; color: white;
+            border: 1px solid #333; border-radius: 10px; padding: 12px;
+            margin-top: 10px; box-sizing: border-box; font-size: 16px;
+        }
+
+        label { display: block; margin-top: 20px; color: var(--amarillo); font-weight: bold; font-size: 0.9em; }
+
+        .footer {
+            position: fixed; bottom: 0; width: 100%; background: #000;
+            padding: 15px 20px; border-top: 2px solid #333;
+            display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .btn-pedir {
+            background: #25D366; color: white; border: none;
+            padding: 14px 25px; border-radius: 30px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);
+        }
+
+        .oculto { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="bloqueo-pago">
+    <h1 style="font-size: 60px;">🍟</h1>
+    <h2 style="color: var(--amarillo);">SERVICIO SUSPENDIDO</h2>
+    <p>La licencia de uso ha expirado.</p>
+    <p>Contacte al administrador para renovar el servicio.</p>
+</div>
+
+<div id="app-content">
+    <header>
+        <img src="criollitas-logo.png" class="logo-img" alt="Logo Criollitas" onerror="this.src='https://via.placeholder.com/130x130?text=Criollitas'">
+        <div class="titulo-app">CRIOLLITAS</div>
+        <div class="firma">Hecha por Vibras Positivas</div>
+        <div class="info-oficial">
+            📍 Barrio El Triángulo<br>
+            📞 Contacto: 3137956849<br>
+            🛵 Domicilio: $4.000
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="registro" class="oculto">
+            <h3 style="text-align: center; color: var(--amarillo);">Datos para el Domicilio</h3>
+            <input type="text" id="r-nom" placeholder="Nombre Completo">
+            <input type="text" id="r-dir" placeholder="Dirección de Entrega">
+            <input type="tel" id="r-tel" placeholder="Número Celular">
+            <button onclick="guardarU()" class="btn-pedir" style="width: 100%; background: var(--amarillo); color: black; margin-top: 15px;">ENTRAR AL MENÚ</button>
+        </div>
+
+        <div id="menu-cont">
+            <div class="categoria-titulo">Nuestras Especialidades</div>
+            <div id="items-especial"></div>
+
+            <div class="categoria-titulo">Perros Calientes</div>
+            <div id="items-perros"></div>
+
+            <div class="categoria-titulo">Bebidas y Adiciones</div>
+            <div id="items-extras"></div>
+        </div>
+
+        <label for="pago-metodo">Forma de Pago:</label>
+        <select id="pago-metodo">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia (Nequi/Bancolombia)</option>
+        </select>
+
+        <textarea id="obs" placeholder="Observaciones: (Ej. Sin salsas, portería, cambio de 50 mil...)"></textarea>
+    </div>
+
+    <div class="footer">
+        <div>
+            <div style="font-size: 11px; color: #aaa;">Total + Domicilio ($4.000):</div>
+            <div id="total-val" style="color: var(--amarillo); font-weight: bold; font-size: 1.3em;">$4,000</div>
+        </div>
+        <button class="btn-pedir" onclick="enviarPedido()">PEDIR POR WHATSAPP</button>
+    </div>
+</div>
+
+<script>
+    const APP_ACTIVA = true; 
+    const COSTO_DOMICILIO = 4000;
+
+    // MENÚ BASADO EN LAS IMÁGENES DE CRIOLLITAS
+    const menuData = {
+        "mexicana": { n: "Criollita Mexicana", d: "Papa criolla, guacamole, chorizo, chicharrón, queso mozarella, huevo.", p: 18000, cat: "especial" },
+        "mega_big": { n: "Criollitas Mega Big", d: "La más completa con todos los juguetes.", p: 25000, cat: "especial" },
+        "criollitas_simple": { n: "Criollitas Tradicional", d: "Papa criolla con salsas, chorizo y queso.", p: 15000, cat: "especial" },
+        "moga_bil": { n: "Moga Bil", d: "Papa criolla, tocineta, chorizo, chicharrón y huevo de codorniz.", p: 18000, cat: "especial" },
+        
+        "perro_mex": { n: "Perro Mexicano", d: "Salchicha americana, carne deshebrada, maicitos.", p: 18000, cat: "perros" },
+        "perro_cal": { n: "Perro Callejero", d: "Ripio de papa, salchicha americana, queso, tocineta.", p: 18000, cat: "perros" },
+        "perro_queso": { n: "Perro Queso", d: "Bañado en abundante queso fundido.", p: 18000, cat: "perros" },
+
+        "gaseosa": { n: "Gaseosa", d: "Sabores variados", p: 5000, cat: "extras" },
+        "agua": { n: "Botella de Agua", d: "Refrescante", p: 3000, cat: "extras" },
+        "porcion_queso": { n: "Adición de Queso", d: "Extra fundido", p: 3000, cat: "extras" }
+    };
+
+    let carrito = {};
+
+    window.onload = () => {
+        if (!APP_ACTIVA) {
+            document.getElementById('bloqueo-pago').style.display = 'flex';
+            document.getElementById('app-content').classList.add('oculto');
+            return;
+        }
+        if (!localStorage.getItem('p_user_criollitas')) {
+            document.getElementById('registro').classList.remove('oculto');
+            document.getElementById('menu-cont').classList.add('oculto');
+        }
+        if (!localStorage.getItem('p_cons_criollitas')) localStorage.setItem('p_cons_criollitas', 1);
+        renderMenu();
+    };
+
+    function renderMenu() {
+        for (let id in menuData) {
+            const item = menuData[id];
+            const html = `
+                <div class="plato-card">
+                    <div class="plato-info">
+                        <div class="nombre">${item.n}</div>
+                        <small class="descripcion">${item.d}</small>
+                        <div class="precio">$${item.p.toLocaleString('es-CO')}</div>
+                    </div>
+                    <div class="controles">
+                        <button class="btn-accion" onclick="sumar('${id}', -1)">-</button>
+                        <span id="cant-${id}" style="font-weight:bold; width:20px; text-align:center;">0</span>
+                        <button class="btn-accion" onclick="sumar('${id}', 1)">+</button>
+                    </div>
+                </div>`;
+            document.getElementById('items-' + item.cat).innerHTML += html;
+        }
+    }
+
+    function guardarU() {
+        const n = document.getElementById('r-nom').value, d = document.getElementById('r-dir').value, t = document.getElementById('r-tel').value;
+        if(n && d && t) {
+            localStorage.setItem('p_user_criollitas', JSON.stringify({n, d, t}));
+            location.reload();
+        } else alert("Por favor completa los datos de envío.");
+    }
+
+    function sumar(id, v) {
+        carrito[id] = Math.max(0, (carrito[id] || 0) + v);
+        document.getElementById('cant-' + id).innerText = carrito[id];
+        let totalSub = 0;
+        let tieneItems = false;
+        for (let k in carrito) {
+            totalSub += carrito[k] * menuData[k].p;
+            if(carrito[k] > 0) tieneItems = true;
+        }
+        const totalFinal = tieneItems ? totalSub + COSTO_DOMICILIO : 0;
+        document.getElementById('total-val').innerText = "$" + totalFinal.toLocaleString('es-CO');
+    }
+
+    function enviarPedido() {
+        let subtotal = 0, detalle = "", user = JSON.parse(localStorage.getItem('p_user_criollitas')), nPed = localStorage.getItem('p_cons_criollitas');
+        const pago = document.getElementById('pago-metodo').value;
+
+        for (let k in carrito) {
+            if (carrito[k] > 0) {
+                subtotal += carrito[k] * menuData[k].p;
+                detalle += `• ${carrito[k]}x ${menuData[k].n}\n`;
+            }
+        }
+        if (subtotal === 0) return alert("Selecciona productos para tu pedido.");
+        
+        const totalFinal = subtotal + COSTO_DOMICILIO;
+        const hora = new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"});
+        
+        let msg = `🍟 *PEDIDO: CRIOLLITAS* 🍟\n`;
+        msg += `*No:* #${nPed} | *Fecha:* ${hora}\n\n`;
+        msg += `*CLIENTE:* ${user.n}\n*DIR:* ${user.d}\n*TEL:* ${user.t}\n\n`;
+        msg += `*PRODUCTOS:*\n${detalle}\n`;
+        msg += `*SUBTOTAL:* $${subtotal.toLocaleString('es-CO')}\n`;
+        msg += `*DOMICILIO:* $${COSTO_DOMICILIO.toLocaleString('es-CO')}\n`;
+        msg += `*TOTAL A PAGAR: $${totalFinal.toLocaleString('es-CO')}*\n\n`;
+        msg += `*FORMA DE PAGO:* ${pago}\n`;
+        msg += `*OBS:* ${document.getElementById('obs').value || 'Ninguna'}\n\n`;
+        msg += `_Hecho por Vibras Positivas_`;
+
+        localStorage.setItem('p_cons_criollitas', parseInt(nPed) + 1);
+        // Número de Criollitas: 3137956849
+        window.open(`https://wa.me/573137956849?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+</body>
+</html>
