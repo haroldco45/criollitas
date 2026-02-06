@@ -25,11 +25,19 @@
             text-align: center;
             padding: 20px;
             border-bottom: 4px solid var(--amarillo);
+            position: relative;
         }
 
-        .logo-img { max-width: 130px; margin-bottom: 8px; border-radius: 50%; border: 2px solid var(--amarillo); }
+        .logo-img { max-width: 110px; margin-bottom: 8px; border-radius: 50%; border: 2px solid var(--amarillo); }
         .titulo-app { font-size: 26px; font-weight: bold; color: var(--amarillo); margin: 0; text-transform: uppercase; }
-        .firma { font-size: 10px; color: #888; margin-top: 5px; font-style: italic; letter-spacing: 1px; }
+        .firma { font-size: 11px; color: white; margin-top: 5px; font-weight: bold; background: #CC0000; display: inline-block; padding: 2px 8px; border-radius: 4px; }
+        
+        .btn-editar-perfil {
+            position: absolute; top: 15px; right: 15px;
+            background: #333; color: var(--amarillo); border: 1px solid var(--amarillo);
+            padding: 5px 10px; border-radius: 20px; font-size: 11px; cursor: pointer;
+        }
+
         .info-oficial { font-size: 13px; margin-top: 10px; line-height: 1.5; color: white; }
 
         .container { padding: 15px; }
@@ -70,8 +78,6 @@
             margin-top: 10px; box-sizing: border-box; font-size: 16px;
         }
 
-        label { display: block; margin-top: 20px; color: var(--amarillo); font-weight: bold; font-size: 0.9em; }
-
         .footer {
             position: fixed; bottom: 0; width: 100%; background: #000;
             padding: 15px 20px; border-top: 2px solid #333;
@@ -91,6 +97,7 @@
 
 <div id="app-content">
     <header>
+        <button class="btn-editar-perfil" id="btn-edit" onclick="abrirRegistro()">✏️ Editar Datos</button>
         <img src="criollitas.PNG" class="logo-img" alt="Logo Criollitas" onerror="this.style.display='none'">
         <div class="titulo-app">CRIOLLITAS</div>
         <div class="firma">Hecha por Vibras Positivas</div>
@@ -103,11 +110,13 @@
 
     <div class="container">
         <div id="registro" class="oculto">
-            <h3 style="text-align: center; color: var(--amarillo);">Datos de Envío</h3>
+            <h3 style="text-align: center; color: var(--amarillo);">Tus Datos de Envío</h3>
+            <p style="text-align: center; font-size: 12px; color: #888;">Puedes cambiarlos si deseas enviar a otra dirección.</p>
             <input type="text" id="r-nom" placeholder="Nombre Completo">
             <input type="text" id="r-dir" placeholder="Dirección de Entrega">
             <input type="tel" id="r-tel" placeholder="Número Celular">
-            <button onclick="guardarU()" class="btn-pedir" style="width: 100%; background: var(--amarillo); color: black; margin-top: 15px;">ENTRAR AL MENÚ</button>
+            <button onclick="guardarU()" class="btn-pedir" style="width: 100%; background: var(--amarillo); color: black; margin-top: 15px;">GUARDAR Y CONTINUAR</button>
+            <button onclick="cerrarRegistro()" id="btn-cancelar" class="oculto" style="width: 100%; background: transparent; color: white; border: none; margin-top: 10px; cursor: pointer;">Cancelar</button>
         </div>
 
         <div id="menu-cont">
@@ -117,17 +126,20 @@
             <div class="categoria-titulo">Perros Calientes</div>
             <div id="items-perros"></div>
 
-            <div class="categoria-titulo">Bebidas y Adiciones</div>
-            <div id="items-extras"></div>
+            <div class="categoria-titulo">Adiciones</div>
+            <div id="items-adiciones"></div>
+
+            <div class="categoria-titulo">Bebidas</div>
+            <div id="items-bebidas"></div>
+            
+            <label style="display: block; margin-top: 20px; color: var(--amarillo); font-weight: bold;">Forma de Pago:</label>
+            <select id="pago-metodo">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia (Nequi/Bancolombia)</option>
+            </select>
+
+            <textarea id="obs" placeholder="Observaciones: (Ej. Sin cebolla, casa de rejas blancas, etc.)"></textarea>
         </div>
-
-        <label for="pago-metodo">Forma de Pago:</label>
-        <select id="pago-metodo">
-            <option value="Efectivo">Efectivo</option>
-            <option value="Transferencia">Transferencia (Nequi/Bancolombia)</option>
-        </select>
-
-        <textarea id="obs" placeholder="Observaciones: (Ej. Sin salsas, portería, cambio de 50 mil...)"></textarea>
     </div>
 
     <div class="footer">
@@ -143,58 +155,82 @@
     const COSTO_DOMICILIO = 4000;
 
     const menuData = {
-        // ESPECIALIDADES (Foto uno)
-        "mexicana_esp": { n: "Mexicana", d: "Papa criolla, guacamole, pico de gallo, carne desmechada, chorizo, maicitos, queso y BBQ.", p: 37000, cat: "especial" },
-        "ranchera_esp": { n: "Ranchera", d: "Papa criolla, salchicha ranchera, maicitos, tocineta, queso mozarella y huevo de codorniz.", p: 25000, cat: "especial" },
-        "mega_big": { n: "Criollitas Mega Big", d: "Papa criolla, tocineta, chorizo, chicharrón, queso mozarella y huevos de codorniz.", p: 38000, cat: "especial" },
+        "mexicana_esp": { n: "Mexicana", d: "Papa criolla, guacamole, pico de gallo, carne desmechada, chorizo, maicitos y BBQ.", p: 37000, cat: "especial" },
+        "ranchera_esp": { n: "Ranchera", d: "Papa criolla, salchicha ranchera, maicitos, tocineta y huevo de codorniz.", p: 25000, cat: "especial" },
+        "mega_big": { n: "Criollitas Mega Big", d: "Papa criolla, tocineta, chorizo, chicharrón, queso y huevos de codorniz.", p: 38000, cat: "especial" },
         "criollitas_trad": { n: "Criollitas", d: "Papa criolla, tocineta, chorizo, queso mozarella y huevo de codorniz.", p: 18000, cat: "especial" },
-        "contentosa": { n: "Contentosa", d: "Papa criolla, chicharrón al barril, costilla al barril, pico de gallo, guacamole y arepa con queso.", p: 38000, cat: "especial" },
-        "chicharron_ai": { n: "Chicharrón al Barril", d: "Papa criolla, arepa con queso, chicharrón al barril, chimichurri y limón.", p: 24000, cat: "especial" },
-        "paisa": { n: "Paisa", d: "Papa criolla, guacamole, chicharrón, chorizo, queso mozarella, maduritos y huevo de codorniz.", p: 32000, cat: "especial" },
-        "callejera": { n: "Callejera", d: "Papa criolla, tocineta, chorizo, chicharrón al barril, queso mozarella, huevos y maíz dulce.", p: 35000, cat: "especial" },
+        "contentosa": { n: "Contentosa", d: "Papa criolla, chicharrón al barril, costilla al barril, guacamole y arepa queso.", p: 38000, cat: "especial" },
+        "chicharron_ai": { n: "Chicharrón al Barril", d: "Papa criolla, arepa con queso, chicharrón al barril y chimichurri.", p: 24000, cat: "especial" },
+        "paisa": { n: "Paisa", d: "Papa criolla, guacamole, chicharrón, chorizo, maduritos y huevo de codorniz.", p: 32000, cat: "especial" },
+        "callejera": { n: "Callejera", d: "Papa criolla, tocineta, chorizo, chicharrón al barril, huevos y maíz dulce.", p: 35000, cat: "especial" },
 
-        // PERROS (Foto dos)
-        "perro_mex": { n: "Perro Mexicano", d: "Pan artesanal, salchicha americana, ripio, guacamole, pico de gallo, queso y tocineta.", p: 21000, cat: "perros" },
+        "perro_mex": { n: "Perro Mexicano", d: "Pan artesanal, salchicha americana, guacamole, pico de gallo, queso y tocineta.", p: 21000, cat: "perros" },
         "perro_cal": { n: "Perro Callejero", d: "Pan artesanal, ripio, salchicha americana, queso con maicito y tocineta.", p: 18000, cat: "perros" },
-        "perro_ran": { n: "Perro Ranchero", d: "Pan artesanal, ripio, salchicha súper ranchera, queso, pepinillos dulces y tocineta.", p: 22000, cat: "perros" },
+        "perro_ran": { n: "Perro Ranchero", d: "Pan artesanal, salchicha súper ranchera, pepinillos dulces y tocineta.", p: 22000, cat: "perros" },
 
-        // BEBIDAS Y EXTRAS (Foto dos)
-        "gas_peq": { n: "Gaseosa Personal", p: 5000, cat: "extras" },
-        "gas_grande": { n: "Gaseosa 1.5L", p: 9000, cat: "extras" },
-        "agua": { n: "Botella de Agua", p: 4000, cat: "extras" },
-        "agua_sab_p": { n: "Agua Saborizada Pequeña", p: 2000, cat: "extras" },
-        "agua_sab_g": { n: "Agua Saborizada Grande", p: 5000, cat: "extras" },
-        "extra_chicho": { n: "Adición Chicharrón/Costilla al Barril", p: 12000, cat: "extras" },
-        "extra_huevos": { n: "Adición 3 Huevos Codorniz", p: 4000, cat: "extras" },
-        "extra_queso": { n: "Adición Queso", p: 4000, cat: "extras" }
+        "extra_huevos": { n: "Huevos de Codorniz (3)", p: 4000, cat: "adiciones" },
+        "extra_queso": { n: "Adición de Queso", p: 4000, cat: "adiciones" },
+        "extra_salchicha": { n: "Adición de Salchicha", p: 5000, cat: "adiciones" },
+        "extra_chorizo": { n: "Adición de Chorizo", p: 4000, cat: "adiciones" },
+        "extra_guacamole": { n: "Adición de Guacamole", p: 3000, cat: "adiciones" },
+        "extra_pico": { n: "Adición de Pico de Gallo", p: 3000, cat: "adiciones" },
+        "extra_maduritos": { n: "Adición de Maduritos", p: 3000, cat: "adiciones" },
+        "extra_arepa": { n: "Arepa con Queso", p: 4000, cat: "adiciones" },
+        "extra_barril": { n: "Adición Chicharrón/Costilla", p: 12000, cat: "adiciones" },
+
+        "gas_peq": { n: "Gaseosa Personal", p: 5000, cat: "bebidas" },
+        "gas_grande": { n: "Gaseosa 1.5L", p: 9000, cat: "bebidas" },
+        "agua": { n: "Botella de Agua", p: 4000, cat: "bebidas" },
+        "agua_sab_p": { n: "Agua Saborizada Pequeña", p: 2000, cat: "bebidas" },
+        "agua_sab_g": { n: "Agua Saborizada Grande", p: 5000, cat: "bebidas" }
     };
 
     let carrito = {};
 
     window.onload = () => {
-        if (!localStorage.getItem('p_user_criollitas')) {
-            document.getElementById('registro').classList.remove('oculto');
-            document.getElementById('menu-cont').classList.add('oculto');
+        const user = localStorage.getItem('p_user_criollitas');
+        if (!user) {
+            abrirRegistro();
+            document.getElementById('btn-edit').classList.add('oculto');
+        } else {
+            cerrarRegistro();
         }
         renderMenu();
     };
 
+    function abrirRegistro() {
+        const user = JSON.parse(localStorage.getItem('p_user_criollitas'));
+        if(user) {
+            document.getElementById('r-nom').value = user.n;
+            document.getElementById('r-dir').value = user.d;
+            document.getElementById('r-tel').value = user.t;
+            document.getElementById('btn-cancelar').classList.remove('oculto');
+        }
+        document.getElementById('registro').classList.remove('oculto');
+        document.getElementById('menu-cont').classList.add('oculto');
+    }
+
+    function cerrarRegistro() {
+        document.getElementById('registro').classList.add('oculto');
+        document.getElementById('menu-cont').classList.remove('oculto');
+        document.getElementById('btn-edit').classList.remove('oculto');
+    }
+
     function renderMenu() {
         for (let id in menuData) {
             const item = menuData[id];
-            const html = `
-                <div class="plato-card">
-                    <div class="plato-info">
-                        <div class="nombre">${item.n}</div>
-                        <small class="descripcion">${item.d || ''}</small>
-                        <div class="precio">$${item.p.toLocaleString('es-CO')}</div>
-                    </div>
-                    <div class="controles">
-                        <button class="btn-accion" onclick="sumar('${id}', -1)">-</button>
-                        <span id="cant-${id}" style="font-weight:bold; width:20px; text-align:center;">0</span>
-                        <button class="btn-accion" onclick="sumar('${id}', 1)">+</button>
-                    </div>
-                </div>`;
+            const html = `<div class="plato-card">
+                <div class="plato-info">
+                    <div class="nombre">${item.n}</div>
+                    <small class="descripcion">${item.d || ''}</small>
+                    <div class="precio">$${item.p.toLocaleString('es-CO')}</div>
+                </div>
+                <div class="controles">
+                    <button class="btn-accion" onclick="sumar('${id}', -1)">-</button>
+                    <span id="cant-${id}" style="font-weight:bold; width:20px; text-align:center;">0</span>
+                    <button class="btn-accion" onclick="sumar('${id}', 1)">+</button>
+                </div>
+            </div>`;
             document.getElementById('items-' + item.cat).innerHTML += html;
         }
     }
@@ -203,8 +239,8 @@
         const n = document.getElementById('r-nom').value, d = document.getElementById('r-dir').value, t = document.getElementById('r-tel').value;
         if(n && d && t) {
             localStorage.setItem('p_user_criollitas', JSON.stringify({n, d, t}));
-            location.reload();
-        } else alert("Por favor completa los datos.");
+            cerrarRegistro();
+        } else alert("Por favor completa todos los datos.");
     }
 
     function sumar(id, v) {
@@ -231,15 +267,7 @@
         if (subtotal === 0) return alert("Selecciona productos.");
         
         const totalFinal = subtotal + COSTO_DOMICILIO;
-        const hora = new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"});
-        let msg = `🍟 *PEDIDO: CRIOLLITAS* 🍟\n`;
-        msg += `*Fecha:* ${hora}\n\n*CLIENTE:* ${user.n}\n*DIR:* ${user.d}\n*TEL:* ${user.t}\n\n`;
-        msg += `*PRODUCTOS:*\n${detalle}\n*SUBTOTAL:* $${subtotal.toLocaleString('es-CO')}\n`;
-        msg += `*DOMICILIO:* $${COSTO_DOMICILIO.toLocaleString('es-CO')}\n`;
-        msg += `*TOTAL: $${totalFinal.toLocaleString('es-CO')}*\n\n`;
-        msg += `*PAGO:* ${document.getElementById('pago-metodo').value}\n*OBS:* ${document.getElementById('obs').value || 'Ninguna'}\n\n`;
-        msg += `_Hecho por Vibras Positivas_`;
-
+        const msg = `🍟 *PEDIDO: CRIOLLITAS* 🍟\n\n*CLIENTE:* ${user.n}\n*DIR:* ${user.d}\n*TEL:* ${user.t}\n\n*PRODUCTOS:*\n${detalle}\n*SUBTOTAL:* $${subtotal.toLocaleString('es-CO')}\n*DOMICILIO:* $${COSTO_DOMICILIO.toLocaleString('es-CO')}\n*TOTAL: $${totalFinal.toLocaleString('es-CO')}*\n\n*PAGO:* ${document.getElementById('pago-metodo').value}\n*OBS:* ${document.getElementById('obs').value || 'Ninguna'}\n\n_Hecho por Vibras Positivas_`;
         window.open(`https://wa.me/573137956849?text=${encodeURIComponent(msg)}`, '_blank');
     }
 </script>
