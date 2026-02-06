@@ -6,12 +6,10 @@
     <title>CRIOLLITAS - Pedidos</title>
     <style>
         :root {
-            /* Colores adaptados a Criollitas */
             --amarillo: #FFD700;
             --negro: #000000;
             --gris-card: #1e1e1e;
             --verde-precio: #2ecc71;
-            --rojo-vibras: #CC0000; /* Para el sello de Vibras Positivas */
         }
 
         body {
@@ -20,13 +18,6 @@
             color: white;
             margin: 0;
             padding-bottom: 120px;
-        }
-
-        #bloqueo-pago {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99999; display: none;
-            flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 30px;
         }
 
         header {
@@ -60,11 +51,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
         .plato-info .nombre { color: var(--amarillo); font-weight: bold; font-size: 1.1em; }
-        .plato-info .descripcion { color: #aaa; font-size: 0.85em; margin-top: 3px; display: block; max-width: 200px; }
+        .plato-info .descripcion { color: #aaa; font-size: 0.85em; margin-top: 3px; display: block; max-width: 180px; }
         .plato-info .precio { color: var(--verde-precio); font-weight: bold; font-size: 1.15em; margin-top: 5px; }
 
         .controles { display: flex; align-items: center; gap: 15px; }
@@ -92,7 +82,6 @@
         .btn-pedir {
             background: #25D366; color: white; border: none;
             padding: 14px 25px; border-radius: 30px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);
         }
 
         .oculto { display: none !important; }
@@ -100,16 +89,9 @@
 </head>
 <body>
 
-<div id="bloqueo-pago">
-    <h1 style="font-size: 60px;">🍟</h1>
-    <h2 style="color: var(--amarillo);">SERVICIO SUSPENDIDO</h2>
-    <p>La licencia de uso ha expirado.</p>
-    <p>Contacte al administrador para renovar el servicio.</p>
-</div>
-
 <div id="app-content">
     <header>
-        <img src="criollitas-logo.png" class="logo-img" alt="Logo Criollitas" onerror="this.src='https://via.placeholder.com/130x130?text=Criollitas'">
+        <img src="criollitas.PNG" class="logo-img" alt="Logo Criollitas" onerror="this.style.display='none'">
         <div class="titulo-app">CRIOLLITAS</div>
         <div class="firma">Hecha por Vibras Positivas</div>
         <div class="info-oficial">
@@ -121,7 +103,7 @@
 
     <div class="container">
         <div id="registro" class="oculto">
-            <h3 style="text-align: center; color: var(--amarillo);">Datos para el Domicilio</h3>
+            <h3 style="text-align: center; color: var(--amarillo);">Datos de Envío</h3>
             <input type="text" id="r-nom" placeholder="Nombre Completo">
             <input type="text" id="r-dir" placeholder="Dirección de Entrega">
             <input type="tel" id="r-tel" placeholder="Número Celular">
@@ -129,7 +111,7 @@
         </div>
 
         <div id="menu-cont">
-            <div class="categoria-titulo">Nuestras Especialidades</div>
+            <div class="categoria-titulo">Special Menu</div>
             <div id="items-especial"></div>
 
             <div class="categoria-titulo">Perros Calientes</div>
@@ -158,38 +140,42 @@
 </div>
 
 <script>
-    const APP_ACTIVA = true; 
     const COSTO_DOMICILIO = 4000;
 
-    // MENÚ BASADO EN LAS IMÁGENES DE CRIOLLITAS
     const menuData = {
-        "mexicana": { n: "Criollita Mexicana", d: "Papa criolla, guacamole, chorizo, chicharrón, queso mozarella, huevo.", p: 18000, cat: "especial" },
-        "mega_big": { n: "Criollitas Mega Big", d: "La más completa con todos los juguetes.", p: 25000, cat: "especial" },
-        "criollitas_simple": { n: "Criollitas Tradicional", d: "Papa criolla con salsas, chorizo y queso.", p: 15000, cat: "especial" },
-        "moga_bil": { n: "Moga Bil", d: "Papa criolla, tocineta, chorizo, chicharrón y huevo de codorniz.", p: 18000, cat: "especial" },
-        
-        "perro_mex": { n: "Perro Mexicano", d: "Salchicha americana, carne deshebrada, maicitos.", p: 18000, cat: "perros" },
-        "perro_cal": { n: "Perro Callejero", d: "Ripio de papa, salchicha americana, queso, tocineta.", p: 18000, cat: "perros" },
-        "perro_queso": { n: "Perro Queso", d: "Bañado en abundante queso fundido.", p: 18000, cat: "perros" },
+        // ESPECIALIDADES (Foto uno)
+        "mexicana_esp": { n: "Mexicana", d: "Papa criolla, guacamole, pico de gallo, carne desmechada, chorizo, maicitos, queso y BBQ.", p: 37000, cat: "especial" },
+        "ranchera_esp": { n: "Ranchera", d: "Papa criolla, salchicha ranchera, maicitos, tocineta, queso mozarella y huevo de codorniz.", p: 25000, cat: "especial" },
+        "mega_big": { n: "Criollitas Mega Big", d: "Papa criolla, tocineta, chorizo, chicharrón, queso mozarella y huevos de codorniz.", p: 38000, cat: "especial" },
+        "criollitas_trad": { n: "Criollitas", d: "Papa criolla, tocineta, chorizo, queso mozarella y huevo de codorniz.", p: 18000, cat: "especial" },
+        "contentosa": { n: "Contentosa", d: "Papa criolla, chicharrón al barril, costilla al barril, pico de gallo, guacamole y arepa con queso.", p: 38000, cat: "especial" },
+        "chicharron_ai": { n: "Chicharrón al Barril", d: "Papa criolla, arepa con queso, chicharrón al barril, chimichurri y limón.", p: 24000, cat: "especial" },
+        "paisa": { n: "Paisa", d: "Papa criolla, guacamole, chicharrón, chorizo, queso mozarella, maduritos y huevo de codorniz.", p: 32000, cat: "especial" },
+        "callejera": { n: "Callejera", d: "Papa criolla, tocineta, chorizo, chicharrón al barril, queso mozarella, huevos y maíz dulce.", p: 35000, cat: "especial" },
 
-        "gaseosa": { n: "Gaseosa", d: "Sabores variados", p: 5000, cat: "extras" },
-        "agua": { n: "Botella de Agua", d: "Refrescante", p: 3000, cat: "extras" },
-        "porcion_queso": { n: "Adición de Queso", d: "Extra fundido", p: 3000, cat: "extras" }
+        // PERROS (Foto dos)
+        "perro_mex": { n: "Perro Mexicano", d: "Pan artesanal, salchicha americana, ripio, guacamole, pico de gallo, queso y tocineta.", p: 21000, cat: "perros" },
+        "perro_cal": { n: "Perro Callejero", d: "Pan artesanal, ripio, salchicha americana, queso con maicito y tocineta.", p: 18000, cat: "perros" },
+        "perro_ran": { n: "Perro Ranchero", d: "Pan artesanal, ripio, salchicha súper ranchera, queso, pepinillos dulces y tocineta.", p: 22000, cat: "perros" },
+
+        // BEBIDAS Y EXTRAS (Foto dos)
+        "gas_peq": { n: "Gaseosa Personal", p: 5000, cat: "extras" },
+        "gas_grande": { n: "Gaseosa 1.5L", p: 9000, cat: "extras" },
+        "agua": { n: "Botella de Agua", p: 4000, cat: "extras" },
+        "agua_sab_p": { n: "Agua Saborizada Pequeña", p: 2000, cat: "extras" },
+        "agua_sab_g": { n: "Agua Saborizada Grande", p: 5000, cat: "extras" },
+        "extra_chicho": { n: "Adición Chicharrón/Costilla al Barril", p: 12000, cat: "extras" },
+        "extra_huevos": { n: "Adición 3 Huevos Codorniz", p: 4000, cat: "extras" },
+        "extra_queso": { n: "Adición Queso", p: 4000, cat: "extras" }
     };
 
     let carrito = {};
 
     window.onload = () => {
-        if (!APP_ACTIVA) {
-            document.getElementById('bloqueo-pago').style.display = 'flex';
-            document.getElementById('app-content').classList.add('oculto');
-            return;
-        }
         if (!localStorage.getItem('p_user_criollitas')) {
             document.getElementById('registro').classList.remove('oculto');
             document.getElementById('menu-cont').classList.add('oculto');
         }
-        if (!localStorage.getItem('p_cons_criollitas')) localStorage.setItem('p_cons_criollitas', 1);
         renderMenu();
     };
 
@@ -200,7 +186,7 @@
                 <div class="plato-card">
                     <div class="plato-info">
                         <div class="nombre">${item.n}</div>
-                        <small class="descripcion">${item.d}</small>
+                        <small class="descripcion">${item.d || ''}</small>
                         <div class="precio">$${item.p.toLocaleString('es-CO')}</div>
                     </div>
                     <div class="controles">
@@ -218,7 +204,7 @@
         if(n && d && t) {
             localStorage.setItem('p_user_criollitas', JSON.stringify({n, d, t}));
             location.reload();
-        } else alert("Por favor completa los datos de envío.");
+        } else alert("Por favor completa los datos.");
     }
 
     function sumar(id, v) {
@@ -230,38 +216,30 @@
             totalSub += carrito[k] * menuData[k].p;
             if(carrito[k] > 0) tieneItems = true;
         }
-        const totalFinal = tieneItems ? totalSub + COSTO_DOMICILIO : 0;
+        const totalFinal = tieneItems ? totalSub + COSTO_DOMICILIO : COSTO_DOMICILIO;
         document.getElementById('total-val').innerText = "$" + totalFinal.toLocaleString('es-CO');
     }
 
     function enviarPedido() {
-        let subtotal = 0, detalle = "", user = JSON.parse(localStorage.getItem('p_user_criollitas')), nPed = localStorage.getItem('p_cons_criollitas');
-        const pago = document.getElementById('pago-metodo').value;
-
+        let subtotal = 0, detalle = "", user = JSON.parse(localStorage.getItem('p_user_criollitas'));
         for (let k in carrito) {
             if (carrito[k] > 0) {
                 subtotal += carrito[k] * menuData[k].p;
                 detalle += `• ${carrito[k]}x ${menuData[k].n}\n`;
             }
         }
-        if (subtotal === 0) return alert("Selecciona productos para tu pedido.");
+        if (subtotal === 0) return alert("Selecciona productos.");
         
         const totalFinal = subtotal + COSTO_DOMICILIO;
         const hora = new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"});
-        
         let msg = `🍟 *PEDIDO: CRIOLLITAS* 🍟\n`;
-        msg += `*No:* #${nPed} | *Fecha:* ${hora}\n\n`;
-        msg += `*CLIENTE:* ${user.n}\n*DIR:* ${user.d}\n*TEL:* ${user.t}\n\n`;
-        msg += `*PRODUCTOS:*\n${detalle}\n`;
-        msg += `*SUBTOTAL:* $${subtotal.toLocaleString('es-CO')}\n`;
+        msg += `*Fecha:* ${hora}\n\n*CLIENTE:* ${user.n}\n*DIR:* ${user.d}\n*TEL:* ${user.t}\n\n`;
+        msg += `*PRODUCTOS:*\n${detalle}\n*SUBTOTAL:* $${subtotal.toLocaleString('es-CO')}\n`;
         msg += `*DOMICILIO:* $${COSTO_DOMICILIO.toLocaleString('es-CO')}\n`;
-        msg += `*TOTAL A PAGAR: $${totalFinal.toLocaleString('es-CO')}*\n\n`;
-        msg += `*FORMA DE PAGO:* ${pago}\n`;
-        msg += `*OBS:* ${document.getElementById('obs').value || 'Ninguna'}\n\n`;
+        msg += `*TOTAL: $${totalFinal.toLocaleString('es-CO')}*\n\n`;
+        msg += `*PAGO:* ${document.getElementById('pago-metodo').value}\n*OBS:* ${document.getElementById('obs').value || 'Ninguna'}\n\n`;
         msg += `_Hecho por Vibras Positivas_`;
 
-        localStorage.setItem('p_cons_criollitas', parseInt(nPed) + 1);
-        // Número de Criollitas: 3137956849
         window.open(`https://wa.me/573137956849?text=${encodeURIComponent(msg)}`, '_blank');
     }
 </script>
