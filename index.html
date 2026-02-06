@@ -137,7 +137,7 @@
                 <option value="Transferencia">Transferencia (Nequi/Bancolombia)</option>
             </select>
 
-            <textarea id="obs" placeholder="Observaciones: (Ej. Sin cebolla, casa de rejas blancas, etc.)"></textarea>
+            <textarea id="obs" placeholder="Observaciones: (Ej. Sin cebolla, etc.)"></textarea>
         </div>
     </div>
 
@@ -172,15 +172,17 @@
         "perro_cal": { n: "Perro Callejero", d: "Pan artesanal, ripio, salchicha americana, queso con maicito y tocineta.", p: 18000, cat: "perros" },
         "perro_ran": { n: "Perro Ranchero", d: "Pan artesanal, salchicha súper ranchera, pepinillos dulces y tocineta.", p: 22000, cat: "perros" },
 
-        "extra_huevos": { n: "Huevos de Codorniz (3)", p: 4000, cat: "adiciones" },
-        "extra_queso": { n: "Adición de Queso", p: 4000, cat: "adiciones" },
-        "extra_salchicha": { n: "Adición de Salchicha", p: 5000, cat: "adiciones" },
-        "extra_chorizo": { n: "Adición de Chorizo", p: 4000, cat: "adiciones" },
-        "extra_guacamole": { n: "Adición de Guacamole", p: 3000, cat: "adiciones" },
-        "extra_pico": { n: "Adición de Pico de Gallo", p: 3000, cat: "adiciones" },
-        "extra_maduritos": { n: "Adición de Maduritos", p: 3000, cat: "adiciones" },
-        "extra_arepa": { n: "Arepa con Queso", p: 4000, cat: "adiciones" },
-        "extra_barril": { n: "Adición Chicharrón/Costilla", p: 12000, cat: "adiciones" },
+        // ADICIONES SEPARADAS
+        "extra_huevos": { n: "Huevo de Codorniz", p: 4000, cat: "adiciones" },
+        "extra_queso": { n: "Queso Extra", p: 4000, cat: "adiciones" },
+        "extra_salchicha": { n: "Salchicha Extra", p: 5000, cat: "adiciones" },
+        "extra_chorizo": { n: "Chorizo Extra", p: 4000, cat: "adiciones" },
+        "extra_guacamole": { n: "Guacamole Extra", p: 3000, cat: "adiciones" },
+        "extra_pico": { n: "Pico de Gallo Extra", p: 3000, cat: "adiciones" },
+        "extra_maduritos": { n: "Maduritos Extra", p: 3000, cat: "adiciones" },
+        "extra_arepa": { n: "Arepa con Queso Extra", p: 4000, cat: "adiciones" },
+        "extra_chicharron_barril": { n: "Chicharrón al Barril (Adición)", p: 12000, cat: "adiciones" },
+        "extra_costilla_barril": { n: "Costilla al Barril (Adición)", p: 12000, cat: "adiciones" },
 
         "gas_peq": { n: "Gaseosa Personal", p: 5000, cat: "bebidas" },
         "gas_grande": { n: "Gaseosa 1.5L", p: 9000, cat: "bebidas" },
@@ -273,7 +275,6 @@
         const totalFinal = subtotal + COSTO_DOMICILIO;
         const hora = new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"});
 
-        // Mensaje con datos institucionales (Logo simulado con emojis y nombre del negocio)
         let msg = `🍟 *${INFO_NEGOCIO.nombre}* 🍟\n`;
         msg += `📍 ${INFO_NEGOCIO.direccion}\n`;
         msg += `📞 Contacto: ${INFO_NEGOCIO.celular}\n`;
