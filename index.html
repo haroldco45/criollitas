@@ -111,7 +111,6 @@
     <div class="container">
         <div id="registro" class="oculto">
             <h3 style="text-align: center; color: var(--amarillo);">Tus Datos de Envío</h3>
-            <p style="text-align: center; font-size: 12px; color: #888;">Puedes cambiarlos si deseas enviar a otra dirección.</p>
             <input type="text" id="r-nom" placeholder="Nombre Completo">
             <input type="text" id="r-dir" placeholder="Dirección de Entrega">
             <input type="tel" id="r-tel" placeholder="Número Celular">
@@ -153,6 +152,11 @@
 
 <script>
     const COSTO_DOMICILIO = 4000;
+    const INFO_NEGOCIO = {
+        nombre: "CRIOLLITAS",
+        direccion: "Barrio El Triángulo",
+        celular: "3137956849"
+    };
 
     const menuData = {
         "mexicana_esp": { n: "Mexicana", d: "Papa criolla, guacamole, pico de gallo, carne desmechada, chorizo, maicitos y BBQ.", p: 37000, cat: "especial" },
@@ -267,8 +271,26 @@
         if (subtotal === 0) return alert("Selecciona productos.");
         
         const totalFinal = subtotal + COSTO_DOMICILIO;
-        const msg = `🍟 *PEDIDO: CRIOLLITAS* 🍟\n\n*CLIENTE:* ${user.n}\n*DIR:* ${user.d}\n*TEL:* ${user.t}\n\n*PRODUCTOS:*\n${detalle}\n*SUBTOTAL:* $${subtotal.toLocaleString('es-CO')}\n*DOMICILIO:* $${COSTO_DOMICILIO.toLocaleString('es-CO')}\n*TOTAL: $${totalFinal.toLocaleString('es-CO')}*\n\n*PAGO:* ${document.getElementById('pago-metodo').value}\n*OBS:* ${document.getElementById('obs').value || 'Ninguna'}\n\n_Hecho por Vibras Positivas_`;
-        window.open(`https://wa.me/573137956849?text=${encodeURIComponent(msg)}`, '_blank');
+        const hora = new Date().toLocaleString("es-CO", {timeZone: "America/Bogota"});
+
+        // Mensaje con datos institucionales (Logo simulado con emojis y nombre del negocio)
+        let msg = `🍟 *${INFO_NEGOCIO.nombre}* 🍟\n`;
+        msg += `📍 ${INFO_NEGOCIO.direccion}\n`;
+        msg += `📞 Contacto: ${INFO_NEGOCIO.celular}\n`;
+        msg += `-----------------------------\n`;
+        msg += `*PEDIDO NUEVO* | ${hora}\n\n`;
+        msg += `*CLIENTE:* ${user.n}\n`;
+        msg += `*DIR ENTREGA:* ${user.d}\n`;
+        msg += `*TEL:* ${user.t}\n\n`;
+        msg += `*PRODUCTOS:*\n${detalle}\n`;
+        msg += `*SUBTOTAL:* $${subtotal.toLocaleString('es-CO')}\n`;
+        msg += `*DOMICILIO:* $${COSTO_DOMICILIO.toLocaleString('es-CO')}\n`;
+        msg += `*TOTAL A PAGAR: $${totalFinal.toLocaleString('es-CO')}*\n\n`;
+        msg += `*PAGO:* ${document.getElementById('pago-metodo').value}\n`;
+        msg += `*OBS:* ${document.getElementById('obs').value || 'Ninguna'}\n\n`;
+        msg += `_Hecho por Vibras Positivas_`;
+
+        window.open(`https://wa.me/57${INFO_NEGOCIO.celular}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 </script>
 </body>
